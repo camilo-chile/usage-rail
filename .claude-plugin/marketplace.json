@@ -1,6 +1,6 @@
 {
   "name": "usage-rail",
-  "description": "usage-rail: see what every prompt costs you on your Claude plan, live, in a side panel of the desktop app.",
+  "description": "usage-rail: your Claude plan usage and the cost of every prompt, live, in a side panel that keeps your chat clean.",
   "owner": { "name": "camilo-chile" },
   "plugins": [{ "name": "usage-rail", "source": "./" }]
 }
