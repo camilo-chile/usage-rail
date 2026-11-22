@@ -1,7 +1,8 @@
 {
   "name": "usage-rail",
-  "version": "0.2.0",
-  "description": "Compact usage widget for the Claude desktop app: context, 5-hour and weekly limits with reset times, per-message cost and a Compact button",
+  "version": "0.2.1",
+  "description": "See what every prompt costs you: a side-panel widget for the Claude desktop app with a live +x% per message on your 5-hour and weekly limits, exact reset times, context fill, and a Compact button that unlocks only when it is worth it.",
   "license": "MIT",
+  "keywords": ["usage", "rate limits", "5-hour limit", "weekly limit", "context window", "compact", "cost per prompt", "desktop", "widget"],
   "types": "./types/index.d.ts"
 }
