@@ -201,7 +201,9 @@ const resetLines = (resetsAt: string | undefined, at: number): [string, string] 
 const tokens = (n: number): string =>
   n >= 1_000_000 ? `${+(n / 1_000_000).toFixed(1)}M` : n >= 1000 ? `${Math.round(n / 1000)}k` : `${n}`
 
-const deltaText = (d: number): string => (d < 0 ? '' : d < 1 ? `+${d.toFixed(1)}%` : `+${Math.round(d)}%`)
+// The limits come in whole points (at most one decimal), so a rise under a point reads "<1%".
+const deltaText = (d: number): string =>
+  d < 0 ? '' : d === 0 ? '+<1%' : d < 1 ? `+${d.toFixed(1)}%` : `+${Math.round(d)}%`
 
 // ---------- drawing ----------
 
@@ -338,6 +340,8 @@ export const register: Register = on => {
 
   // Each message starts its own count from the 5-hour figure as it stands.
   on('turn.start', async ($, e, next) => {
+    // Subagents run turns of their own inside a message: they must not restart the count.
+    if (e.agentId !== undefined) return next(e)
     const s = await read($, snap)
     await update($, turnStartPct, () => fiveHourPct(s) ?? -1)
     await update($, lastDelta, () => 0)
