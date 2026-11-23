@@ -5,6 +5,9 @@
   "author": { "name": "camilo-chile", "url": "https://github.com/camilo-chile" },
   "homepage": "https://github.com/camilo-chile/usage-rail",
   "repository": "https://github.com/camilo-chile/usage-rail",
+  "documentationUrl": "https://github.com/camilo-chile/usage-rail#readme",
+  "supportUrl": "https://github.com/camilo-chile/usage-rail/issues",
+  "privacyPolicyUrl": "https://github.com/camilo-chile/usage-rail/blob/main/PRIVACY.md",
   "license": "MIT",
   "keywords": ["usage", "side panel", "clean chat", "rate limits", "5-hour limit", "weekly limit", "context window", "compact", "cost per prompt", "desktop", "widget"]
 }
