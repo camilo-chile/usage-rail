@@ -179,10 +179,10 @@ const pad = (n: number) => String(n).padStart(2, '0')
 const left = (ms: number): string => {
   const min = Math.max(0, Math.round(ms / 60000))
   const d = Math.floor(min / 1440)
-  const h = Math.floor((min % 1440) / 60)
+  const hrs = Math.floor((min % 1440) / 60)
   const m = min % 60
-  if (d > 0) return `${d}d ${h}h`
-  if (h > 0) return `${h}h ${pad(m)}m`
+  if (d > 0) return `${d}d ${hrs}h`
+  if (hrs > 0) return `${hrs}h ${pad(m)}m`
   return `${m} min`
 }
 
