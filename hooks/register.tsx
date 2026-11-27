@@ -1,5 +1,5 @@
 import { atom, read, update } from 'claude-code'
-import type { EngineInterface, Register, SessionUsage } from 'claude-code'
+import type { EngineInterface, Register, RenderChildren, SessionUsage } from 'claude-code'
 
 import type { Limit, Snapshot } from '../types'
 
@@ -273,6 +273,32 @@ const rowSvg = (r: Ring): string => {
 </svg>`
 }
 
+// VS Code draws its panels in the editor's own theme, which the SVG's media query cannot see
+// (it follows the OS). There only the ring is an image, in colors that read on light and dark;
+// every word is native text, which the editor themes by itself.
+const RING = 40
+const RING_R = 15
+const RING_C = 2 * Math.PI * RING_R
+
+const ringSvg = (r: Ring): string => {
+  const mid = RING / 2
+  const pct = r.pct === undefined ? 0 : Math.max(0, Math.min(100, r.pct))
+  const arc =
+    r.pct === undefined
+      ? ''
+      : `<circle cx="${mid}" cy="${mid}" r="${RING_R}" fill="none" stroke="${color(pct, r.accent, r.warnAt)}" stroke-width="5"
+          stroke-linecap="round" stroke-dasharray="${((pct / 100) * RING_C).toFixed(2)} ${RING_C.toFixed(2)}"
+          transform="rotate(-90 ${mid} ${mid})"/>`
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${RING}" height="${RING}" viewBox="0 0 ${RING} ${RING}">
+  <circle cx="${mid}" cy="${mid}" r="${RING_R}" fill="none" stroke="#8a8577" stroke-opacity="0.35" stroke-width="5"/>
+  ${arc}
+</svg>`
+}
+
+const tone = (pct: number, accent: string, warnAt = 75) =>
+  pct >= 90 ? 'error' : pct >= warnAt ? 'warning' : accent
+
 const altOf = (r: Ring) =>
   `${r.label}${r.badge ? ` ${r.badge}` : ''}: ${r.pct === undefined ? L.noData : `${r.pct}%`} ${r.line1} ${r.line2}`.trim()
 
@@ -312,6 +338,11 @@ export const register: Register = on => {
     await update($, now, () => Date.now())
     $.clock.every(60_000, () => {
       void update($, now, () => Date.now())
+      // A resumed session has no reading until its first answer: ask for one now and then.
+      void $.session
+        .usage()
+        .then(usage => update($, snap, prev => fromUsage(usage, prev)))
+        .catch(() => undefined)
     })
     // `/usage` is built in, so the mod's own command is `/usage-rail`.
     await $.command.register({ name: 'usage-rail', description: L.cmd })
@@ -402,6 +433,42 @@ export const register: Register = on => {
 
     // A widget may not take clicks: the button shows only in the full pane.
     const canPress = e.props.placement !== 'widget'
+
+    // VS Code: a ring image plus native, theme-aware text.
+    if (e.surface === 'vscode') {
+      const row = (r: Ring, accent: string, extra?: RenderChildren) => (
+        <Box flexDirection="row" alignItems="center" gap={1}>
+          {Svg ? <Svg source={ringSvg(r)} alt={altOf(r)} width={RING} height={RING} /> : null}
+          <Box flexDirection="column">
+            <Box flexDirection="row" gap={1}>
+              <Text bold>{r.label}</Text>
+              <Text bold color={r.pct === undefined ? undefined : tone(r.pct, accent, r.warnAt)}>
+                {r.pct === undefined ? '–' : `${Math.round(r.pct)}%`}
+              </Text>
+              {r.badge ? <Text color="warning">{r.badge}</Text> : null}
+            </Box>
+            <Text dimColor>{[r.line1, r.line2].filter(Boolean).join(' · ') || L.noData}</Text>
+          </Box>
+          {extra}
+        </Box>
+      )
+
+      return (
+        <Box flexDirection="column" gap={1}>
+          {row(
+            ctx,
+            'suggestion',
+            canPress && isCompactWorth(s) ? (
+              <Button key="compact" label={isBusy ? '…' : L.compact} onPress={() => compactNow($)} />
+            ) : canPress ? (
+              <Text dimColor>{L.compact}</Text>
+            ) : null,
+          )}
+          {row(fiveRing, 'success')}
+          {row(weekRing, 'success')}
+        </Box>
+      )
+    }
 
     return (
       <Box flexDirection="column">

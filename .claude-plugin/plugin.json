@@ -1,6 +1,6 @@
 {
   "name": "usage-rail",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Your Claude usage in a clean side panel, never on top of your chat: a live +x% per message on your 5-hour and weekly limits, exact reset times, context fill, and a Compact button that unlocks only when it is worth it. For the Claude desktop app.",
   "author": { "name": "camilo-chile", "url": "https://github.com/camilo-chile" },
   "homepage": "https://github.com/camilo-chile/usage-rail",
